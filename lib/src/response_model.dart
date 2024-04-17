@@ -1,6 +1,7 @@
 class GithubSignInResponse {
   final ResultStatus? status;
   final String? message;
+  final String? accessToken;
   final String? name;
 
   /// If user:email is used in Scope, it will be full.
@@ -15,6 +16,7 @@ class GithubSignInResponse {
   GithubSignInResponse({
     this.status,
     this.message,
+    this.accessToken,
     this.name,
     this.email,
     this.image,
@@ -27,6 +29,7 @@ class GithubSignInResponse {
     return {
       'status': status.toString(),
       'message': message,
+      'accessToken': accessToken,
       'name': name,
       'email': email,
       'image': image,

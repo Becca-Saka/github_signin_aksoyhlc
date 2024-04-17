@@ -23,22 +23,32 @@ class Github {
 
   http.Response response = http.Response("", 200);
 
-  Future<GithubSignInResponse> authenticate(String code) async {
+  Future<GithubSignInResponse> authenticate(String code,
+      [bool hasData = true]) async {
     try {
       accessToken = await getAccesToken(code);
       if (accessToken != null) {
-        var userData = await getUserData();
-        var email = await getEmail();
-        return GithubSignInResponse(
-          message: "Success",
-          status: ResultStatus.success,
-          email: email,
-          image: userData?['avatar_url'].toString(),
-          name: userData?['name'].toString(),
-          userName: userData?['login'].toString(),
-          id: userData?['id'].toString(),
-          allUserData: jsonEncode(userData),
-        );
+        if (hasData) {
+          var userData = await getUserData();
+          var email = await getEmail();
+          return GithubSignInResponse(
+            message: "Success",
+            status: ResultStatus.success,
+            email: email,
+            accessToken: accessToken,
+            image: userData?['avatar_url'].toString(),
+            name: userData?['name'].toString(),
+            userName: userData?['login'].toString(),
+            id: userData?['id'].toString(),
+            allUserData: jsonEncode(userData),
+          );
+        } else {
+          return GithubSignInResponse(
+            message: "Success",
+            status: ResultStatus.success,
+            accessToken: accessToken,
+          );
+        }
       }
       return GithubSignInResponse(
         message: message,
@@ -67,7 +77,8 @@ class Github {
       );
       return jsonDecode(response.body)['access_token'];
     } catch (e) {
-      message = "Status Code: ${response.statusCode}\n\n Response Body: ${response.body} \n\n Error: ${e.toString()}";
+      message =
+          "Status Code: ${response.statusCode}\n\n Response Body: ${response.body} \n\n Error: ${e.toString()}";
       return null;
     }
   }
@@ -117,7 +128,8 @@ class Github {
       String? email = match.first['email'];
       return email;
     } catch (e) {
-      message = "Status Code: ${response.statusCode}\n\n Response Body: ${response.body} \n\n Error: ${e.toString()}";
+      message =
+          "Status Code: ${response.statusCode}\n\n Response Body: ${response.body} \n\n Error: ${e.toString()}";
       return null;
     }
   }

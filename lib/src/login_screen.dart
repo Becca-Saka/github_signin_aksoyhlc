@@ -13,10 +13,12 @@ class GithubSignIn extends StatefulWidget {
     required this.params,
     this.appBar,
     this.defaultAppBarVisible = true,
+    this.hasData = true,
   });
   final GithubParamsModel params;
   final PreferredSize? appBar;
   final bool defaultAppBarVisible;
+  final bool hasData;
 
   @override
   State<GithubSignIn> createState() => _GithubSignInState();
@@ -87,7 +89,8 @@ class _GithubSignInState extends State<GithubSignIn> {
                   )),
         body: InAppWebView(
           key: webViewKey,
-          initialUrlRequest: URLRequest(url: WebUri(widget.params.generateUrl())),
+          initialUrlRequest:
+              URLRequest(url: WebUri(widget.params.generateUrl())),
           onWebViewCreated: (controller) {
             webViewController = controller;
           },
@@ -97,18 +100,22 @@ class _GithubSignInState extends State<GithubSignIn> {
             }
           },
           onPermissionRequest: (controller, request) async {
-            return PermissionResponse(resources: request.resources, action: PermissionResponseAction.GRANT);
+            return PermissionResponse(
+                resources: request.resources,
+                action: PermissionResponseAction.GRANT);
           },
           shouldOverrideUrlLoading: (controller, navigationAction) async {
             String url = navigationAction.request.url.toString();
             try {
-              bool urlControl = url.startsWith(widget.params.callbackUrl.toString());
+              bool urlControl =
+                  url.startsWith(widget.params.callbackUrl.toString());
               Uri uri = Uri.parse(navigationAction.request.url.toString());
               bool codeControl = uri.queryParameters['code'] != null;
 
               if (urlControl && codeControl) {
                 code = uri.queryParameters['code']!;
-                GithubSignInResponse response = await github.authenticate(code);
+                GithubSignInResponse response =
+                    await github.authenticate(code, widget.hasData);
 
                 Navigator.pop(context, response);
 
@@ -118,7 +125,8 @@ class _GithubSignInState extends State<GithubSignIn> {
                   Navigator.pop(
                     context,
                     GithubSignInResponse(
-                      message: uri.queryParameters['error_description'] ?? "Error",
+                      message:
+                          uri.queryParameters['error_description'] ?? "Error",
                       status: ResultStatus.error,
                     ),
                   );
